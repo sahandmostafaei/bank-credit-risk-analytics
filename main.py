@@ -13,6 +13,11 @@ from analysis import (
 
 from model import train_model
 
+from visualization import (
+    save_histograms,
+    save_missing_values,
+)
+
 DATA_PATH = "data/credit_data.csv"
 
 
@@ -22,21 +27,23 @@ def main():
     print("BANK CREDIT RISK ANALYTICS")
     print("=" * 60)
 
-    # Load dataset
     df = load_data(DATA_PATH)
 
-    # Exploratory Data Analysis
     dataset_summary(df)
 
-    # Credit risk statistics
     default_rate(df)
 
     loan_statistics(df)
 
     correlation_matrix(df)
 
-    # Predictive model
+    save_missing_values(df)
+
+    save_histograms(df)
+
     train_model(df)
+
+    print("\nFigures saved in the figures folder.")
 
     print("\nAnalysis completed successfully.")
 

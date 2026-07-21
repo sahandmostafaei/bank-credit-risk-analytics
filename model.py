@@ -4,31 +4,36 @@ Author: Sahand Mostafaei
 """
 
 import pandas as pd
+
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix,
+)
 
 
 def train_model(df):
 
-    # Find target column
     target = None
 
     for col in [
         "loan_status",
         "Loan_Status",
         "default",
-        "Default"
+        "Default",
     ]:
         if col in df.columns:
             target = col
             break
 
     if target is None:
-        print("No target column found.")
+        print("\nNo target column found.")
         return
 
-    # Keep numeric features only
     numeric = df.select_dtypes(include="number")
 
     if target in numeric.columns:
@@ -43,8 +48,8 @@ def train_model(df):
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
-        test_size=0.2,
-        random_state=42
+        test_size=0.20,
+        random_state=42,
     )
 
     model = LogisticRegression(max_iter=1000)
@@ -53,9 +58,15 @@ def train_model(df):
 
     predictions = model.predict(X_test)
 
-    accuracy = accuracy_score(y_test, predictions)
-
     print("\n==============================")
-    print("MODEL RESULTS")
+    print("MODEL PERFORMANCE")
     print("==============================")
-    print(f"Accuracy: {accuracy:.3f}")
+
+    print(f"Accuracy : {accuracy_score(y_test, predictions):.3f}")
+    print(f"Precision: {precision_score(y_test, predictions, average='weighted'):.3f}")
+    print(f"Recall   : {recall_score(y_test, predictions, average='weighted'):.3f}")
+    print(f"F1 Score : {f1_score(y_test, predictions, average='weighted'):.3f}")
+
+    print("\nConfusion Matrix")
+
+    print(confusion_matrix(y_test, predictions))

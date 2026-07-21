@@ -1,29 +1,40 @@
 """
 Bank Credit Risk Analytics
 Author: Sahand Mostafaei
-
-This project demonstrates a simple workflow for analysing
-credit risk data using Python.
 """
 
 import pandas as pd
-import numpy as np
+
+DATA_PATH = "data/credit_data.csv"
 
 
 def main():
-    print("=" * 50)
+    print("=" * 60)
     print("BANK CREDIT RISK ANALYTICS")
-    print("=" * 50)
+    print("=" * 60)
 
-    print("\nProject Status")
-    print("- Data Loading")
-    print("- Exploratory Data Analysis")
-    print("- Credit Risk Assessment")
-    print("- Statistical Summary")
-    print("- Visualization")
-    print("- Risk Prediction")
+    try:
+        df = pd.read_csv(DATA_PATH)
 
-    print("\nProject successfully initialized.")
+        print("\nDataset loaded successfully.")
+        print(f"Number of rows: {df.shape[0]}")
+        print(f"Number of columns: {df.shape[1]}")
+
+        print("\nColumns")
+        print(df.columns.tolist())
+
+        print("\nFirst five rows")
+        print(df.head())
+
+        print("\nSummary Statistics")
+        print(df.describe(include="all"))
+
+        print("\nMissing Values")
+        print(df.isnull().sum())
+
+    except FileNotFoundError:
+        print("Dataset not found.")
+        print("Expected location:", DATA_PATH)
 
 
 if __name__ == "__main__":

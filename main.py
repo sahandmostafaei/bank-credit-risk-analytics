@@ -1,40 +1,30 @@
-"""
-Bank Credit Risk Analytics
-Author: Sahand Mostafaei
-"""
-
 import pandas as pd
+
+from analysis import (
+    load_data,
+    dataset_summary,
+    default_rate,
+    numeric_summary,
+)
 
 DATA_PATH = "data/credit_data.csv"
 
 
 def main():
-    print("=" * 60)
+
+    print("="*60)
     print("BANK CREDIT RISK ANALYTICS")
-    print("=" * 60)
+    print("="*60)
 
-    try:
-        df = pd.read_csv(DATA_PATH)
+    df = load_data(DATA_PATH)
 
-        print("\nDataset loaded successfully.")
-        print(f"Number of rows: {df.shape[0]}")
-        print(f"Number of columns: {df.shape[1]}")
+    dataset_summary(df)
 
-        print("\nColumns")
-        print(df.columns.tolist())
+    default_rate(df)
 
-        print("\nFirst five rows")
-        print(df.head())
+    numeric_summary(df)
 
-        print("\nSummary Statistics")
-        print(df.describe(include="all"))
-
-        print("\nMissing Values")
-        print(df.isnull().sum())
-
-    except FileNotFoundError:
-        print("Dataset not found.")
-        print("Expected location:", DATA_PATH)
+    print("\nAnalysis Complete.")
 
 
 if __name__ == "__main__":

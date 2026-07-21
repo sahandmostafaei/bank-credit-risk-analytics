@@ -7,40 +7,72 @@ import pandas as pd
 
 
 def load_data(filepath):
+    """Load the dataset."""
     return pd.read_csv(filepath)
 
 
 def dataset_summary(df):
-    print("\nDataset Shape")
-    print(df.shape)
+    print("\n==============================")
+    print("DATASET SUMMARY")
+    print("==============================")
+    print(f"Rows: {df.shape[0]}")
+    print(f"Columns: {df.shape[1]}")
 
-    print("\nColumns")
+    print("\nColumn Names")
     print(df.columns.tolist())
-
-    print("\nSummary Statistics")
-    print(df.describe(include="all"))
 
     print("\nMissing Values")
     print(df.isnull().sum())
 
+    print("\nSummary Statistics")
+    print(df.describe(include="all"))
+
 
 def default_rate(df):
-    for col in ["loan_status", "Loan_Status", "default", "Default"]:
+    """Calculate default rate if a target column exists."""
+    target_columns = [
+        "loan_status",
+        "Loan_Status",
+        "default",
+        "Default",
+        "cb_person_default_on_file"
+    ]
+
+    for col in target_columns:
         if col in df.columns:
-            rate = df[col].value_counts(normalize=True) * 100
-            print("\nDefault Rate (%)")
-            print(rate)
+            print("\n==============================")
+            print("DEFAULT ANALYSIS")
+            print("==============================")
+            print(df[col].value_counts())
+            print("\nPercentage")
+            print(df[col].value_counts(normalize=True) * 100)
             return
 
-    print("\nNo default-status column found.")
+    print("\nDefault column not found.")
 
 
-def numeric_summary(df):
-    print("\nAverage values")
+def loan_statistics(df):
 
-    for col in df.select_dtypes(include="number").columns:
-        print(f"{col}: {df[col].mean():.2f}")
+    print("\n==============================")
+    print("NUMERIC FEATURES")
+    print("==============================")
+
+    numeric = df.select_dtypes(include="number")
+
+    for column in numeric.columns:
+        print(f"\n{column}")
+        print(f"Mean   : {numeric[column].mean():.2f}")
+        print(f"Median : {numeric[column].median():.2f}")
+        print(f"Min    : {numeric[column].min():.2f}")
+        print(f"Max    : {numeric[column].max():.2f}")
 
 
-if __name__ == "__main__":
-    print("Credit Risk Analysis Module Ready")
+def correlation_matrix(df):
+
+    print("\n==============================")
+    print("CORRELATION MATRIX")
+    print("==============================")
+
+    numeric = df.select_dtypes(include="number")
+
+    print(numeric.corr().round(2))

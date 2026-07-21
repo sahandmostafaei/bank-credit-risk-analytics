@@ -1,20 +1,13 @@
-import pandas as pd
-
-from analysis import (
-    load_data,
-    dataset_summary,
-    default_rate,
-    numeric_summary,
-)
+from analysis import *
 
 DATA_PATH = "data/credit_data.csv"
 
 
 def main():
 
-    print("="*60)
+    print("=" * 60)
     print("BANK CREDIT RISK ANALYTICS")
-    print("="*60)
+    print("=" * 60)
 
     df = load_data(DATA_PATH)
 
@@ -22,9 +15,11 @@ def main():
 
     default_rate(df)
 
-    numeric_summary(df)
+    loan_statistics(df)
 
-    print("\nAnalysis Complete.")
+    correlation_matrix(df)
+
+    print("\nAnalysis completed successfully.")
 
 
 if __name__ == "__main__":

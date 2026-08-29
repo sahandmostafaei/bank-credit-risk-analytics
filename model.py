@@ -1,10 +1,11 @@
 """
-Credit Risk Prediction Model
+Credit Risk Machine Learning Models
 Author: Sahand Mostafaei
 """
 
-import pandas as pd
-
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
@@ -13,67 +14,118 @@ from sklearn.metrics import (
     recall_score,
     f1_score,
     roc_auc_score,
-    confusion_matrix,
+    classification_report,
 )
 
 
-def train_model(df):
-
-    target = None
-
-    possible_targets = [
-        "loan_status",
-        "Loan_Status",
-        "default",
-        "Default"
-    ]
-
-    for col in possible_targets:
-        if col in df.columns:
-            target = col
-            break
-
-    if target is None:
-        print("\nTarget column not found.")
-        return
-
-    X = df.drop(columns=[target])
-
-    X = pd.get_dummies(X, drop_first=True)
-
-    X = X.fillna(X.mean(numeric_only=True))
-    X = X.fillna(0)
-
-    y = df[target]
-
-    if y.dtype == object:
-        y = pd.factorize(y)[0]
+def train_model(
+    X,
+    y,
+    numerical_columns,
+    categorical_columns,
+):
 
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
-        test_size=0.20,
-        random_state=42
+        test_size=0.2,
+        random_state=42,
+        stratify=y,
     )
 
-    model = LogisticRegression(max_iter=1000)
+    preprocessor = ColumnTransformer(
+        transformers=[
+            (
+                "numerical",
+                StandardScaler(),
+                numerical_columns,
+            ),
+            (
+                "categorical",
+                OneHotEncoder(
+                    handle_unknown="ignore"
+                ),
+                categorical_columns,
+            ),
+        ]
+    )
 
-    model.fit(X_train, y_train)
+    model = LogisticRegression(
+        max_iter=1000,
+        random_state=42,
+    )
 
-    predictions = model.predict(X_test)
+    pipeline = Pipeline(
+        steps=[
+            ("preprocessing", preprocessor),
+            ("model", model),
+        ]
+    )
 
-    probabilities = model.predict_proba(X_test)[:, 1]
+    pipeline.fit(X_train, y_train)
 
-    print("\n==============================")
-    print("MODEL PERFORMANCE")
-    print("==============================")
+    predictions = pipeline.predict(X_test)
 
-    print(f"Accuracy : {accuracy_score(y_test, predictions):.3f}")
-    print(f"Precision: {precision_score(y_test, predictions):.3f}")
-    print(f"Recall   : {recall_score(y_test, predictions):.3f}")
-    print(f"F1 Score : {f1_score(y_test, predictions):.3f}")
-    print(f"ROC AUC  : {roc_auc_score(y_test, probabilities):.3f}")
+    probabilities = pipeline.predict_proba(
+        X_test
+    )[:, 1]
 
-    print("\nConfusion Matrix")
+    accuracy = accuracy_score(
+        y_test,
+        predictions,
+    )
 
-    print(confusion_matrix(y_test, predictions))
+    precision = precision_score(
+        y_test,
+        predictions,
+        zero_division=0,
+    )
+
+    recall = recall_score(
+        y_test,
+        predictions,
+        zero_division=0,
+    )
+
+    f1 = f1_score(
+        y_test,
+        predictions,
+        zero_division=0,
+    )
+
+    roc_auc = roc_auc_score(
+        y_test,
+        probabilities,
+    )
+
+    print("\n" + "=" * 60)
+    print("CREDIT RISK MODEL")
+    print("=" * 60)
+
+    print("Accuracy:", round(accuracy, 4))
+    print("Precision:", round(precision, 4))
+    print("Recall:", round(recall, 4))
+    print("F1 Score:", round(f1, 4))
+    print("ROC-AUC:", round(roc_auc, 4))
+
+    print("\nClassification Report:")
+    print(
+        classification_report(
+            y_test,
+            predictions,
+            zero_division=0,
+        )
+    )
+
+    return {
+        "pipeline": pipeline,
+        "X_test": X_test,
+        "y_test": y_test,
+        "predictions": predictions,
+        "probabilities": probabilities,
+        "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+        "roc_auc": roc_auc,
+    }

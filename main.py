@@ -19,6 +19,37 @@ from visualization import (
 )
 
 DATA_PATH = "data/credit_data.csv"
+TARGET_COLUMN = "loan_status"
+
+
+def prepare_model_data(df):
+    """
+    Prepare features and target for the credit-risk model.
+    """
+
+    if TARGET_COLUMN not in df.columns:
+        raise ValueError(
+            f"Required target column '{TARGET_COLUMN}' "
+            "was not found in the dataset."
+        )
+
+    X = df.drop(columns=[TARGET_COLUMN])
+    y = df[TARGET_COLUMN]
+
+    categorical_columns = X.select_dtypes(
+        include=["object", "category"]
+    ).columns.tolist()
+
+    numerical_columns = X.select_dtypes(
+        exclude=["object", "category"]
+    ).columns.tolist()
+
+    return (
+        X,
+        y,
+        numerical_columns,
+        categorical_columns,
+    )
 
 
 def main():
@@ -41,10 +72,21 @@ def main():
 
     save_histograms(df)
 
-    train_model(df)
+    (
+        X,
+        y,
+        numerical_columns,
+        categorical_columns,
+    ) = prepare_model_data(df)
+
+    train_model(
+        X=X,
+        y=y,
+        numerical_columns=numerical_columns,
+        categorical_columns=categorical_columns,
+    )
 
     print("\nFigures saved in the figures folder.")
-
     print("\nAnalysis completed successfully.")
 
 

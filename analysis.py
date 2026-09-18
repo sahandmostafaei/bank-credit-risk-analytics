@@ -7,7 +7,7 @@ import pandas as pd
 
 
 def load_data(filepath):
-    """Load the dataset."""
+    """Load the credit-risk dataset."""
     return pd.read_csv(filepath)
 
 
@@ -15,6 +15,7 @@ def dataset_summary(df):
     print("\n==============================")
     print("DATASET SUMMARY")
     print("==============================")
+
     print(f"Rows: {df.shape[0]}")
     print(f"Columns: {df.shape[1]}")
 
@@ -29,26 +30,29 @@ def dataset_summary(df):
 
 
 def default_rate(df):
-    """Calculate default rate if a target column exists."""
-    target_columns = [
-        "loan_status",
-        "Loan_Status",
-        "default",
-        "Default",
-        "cb_person_default_on_file"
-    ]
+    """
+    Calculate the observed loan-default rate.
 
-    for col in target_columns:
-        if col in df.columns:
-            print("\n==============================")
-            print("DEFAULT ANALYSIS")
-            print("==============================")
-            print(df[col].value_counts())
-            print("\nPercentage")
-            print(df[col].value_counts(normalize=True) * 100)
-            return
+    The primary target is `loan_status`.
+    `cb_person_default_on_file` is treated as a historical
+    borrower characteristic and is not used as the target.
+    """
 
-    print("\nDefault column not found.")
+    if "loan_status" not in df.columns:
+        print("\nTarget column 'loan_status' not found.")
+        return
+
+    print("\n==============================")
+    print("DEFAULT ANALYSIS")
+    print("==============================")
+
+    counts = df["loan_status"].value_counts()
+
+    print("\nLoan Status Counts")
+    print(counts)
+
+    print("\nLoan Status Percentages")
+    print(counts / len(df) * 100)
 
 
 def loan_statistics(df):
